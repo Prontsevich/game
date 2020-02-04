@@ -53,7 +53,6 @@ public class RelativeMovement : MonoBehaviour
         if (vertSpeed < 0 && Physics.Raycast(raycastPoint.position, Vector3.down, out hit))
         {
             float check = 0.2f;
-            Debug.DrawRay(raycastPoint.position, Vector3.down, Random.ColorHSV(), check);
             hitGround = hit.distance <= check;
         }
 
@@ -108,7 +107,6 @@ public class RelativeMovement : MonoBehaviour
 
     public void JumpInput(InputAction.CallbackContext context)
     {
-        float contextJump = context.ReadValue<float>();
-        isJump = contextJump > 0;
+        isJump = context.performed;
     }
 }
