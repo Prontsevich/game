@@ -28,6 +28,17 @@ public class PlayerMovementController : MonoBehaviour
     public void MoveInput(InputAction.CallbackContext context)
     {
         Vector2 contextV2 = context.ReadValue<Vector2>();
+
+        //if (Mathf.Abs(contextV2.x) < 0.2f)
+        //{
+        //    contextV2.x = 0;
+        //}
+
+        //if (Mathf.Abs(contextV2.y) < 0.2f)
+        //{
+        //    contextV2.y = 0;
+        //}
+
         inputDir = contextV2.normalized;
         movementInput = new Vector3(0, 0f, contextV2.y);
     }
@@ -73,16 +84,16 @@ public class PlayerMovementController : MonoBehaviour
             transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
         }
 
-        //Vector3 velocity = movementInput.normalized * movementSpeed + Vector3.up * velocityY;
-        Vector3 velocity = movementInput.normalized * movementSpeed + Vector3.up * velocityY + transform.up * rotationSpeed * inputDir.x * Time.deltaTime;
+        Vector3 velocity = movementInput.normalized * movementSpeed + Vector3.up * velocityY;
 
         if (currentImpact.magnitude > 0.2f)
         {
             velocity += currentImpact;
         }
 
-        //characterController.Move(velocity * Time.deltaTime);
-        characterController.SimpleMove(transform.forward * movementSpeed * movementInput.normalized.z);
+        velocity = transform.rotation * velocity;
+
+        characterController.Move(velocity * Time.deltaTime);
 
         currentImpact = Vector3.Lerp(currentImpact, Vector3.zero, damping * Time.deltaTime);
     }
