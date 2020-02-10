@@ -18,6 +18,7 @@ public class RelativeMovement : MonoBehaviour
     private Vector2 inputDir;
     private float vertSpeed;
     private bool isJump;
+    private bool isAttack;
     private ControllerColliderHit contact;
 
     private CharacterController characterController;
@@ -70,7 +71,7 @@ public class RelativeMovement : MonoBehaviour
             else
             {
                 vertSpeed = minFall;
-                animator.SetBool("Jumping", false);
+                animator.SetBool("Jumping1", false);
             }
         }
         else
@@ -83,7 +84,7 @@ public class RelativeMovement : MonoBehaviour
 
             if (contact != null)
             {
-                animator.SetBool("Jumping", true);
+                animator.SetBool("Jumping1", true);
             }
 
             if (characterController.isGrounded)
@@ -102,6 +103,8 @@ public class RelativeMovement : MonoBehaviour
 
         movement *= Time.deltaTime;
         characterController.Move(movement);
+
+        animator.SetBool(inputDir != Vector2.zero ? "JumpAttack" : "Attack", isAttack);
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -119,5 +122,10 @@ public class RelativeMovement : MonoBehaviour
     public void JumpInput(InputAction.CallbackContext context)
     {
         isJump = context.performed;
+    }
+
+    public void AttackInput(InputAction.CallbackContext context)
+    {
+        isAttack = context.performed;
     }
 }
