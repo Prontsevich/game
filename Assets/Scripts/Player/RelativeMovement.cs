@@ -18,17 +18,52 @@ public class RelativeMovement : MonoBehaviour
     private Vector2 inputDir;
     private float vertSpeed;
     private bool isJump;
-    private bool isAttack;
+    private bool isAttacking;
     private ControllerColliderHit contact;
 
     private CharacterController characterController;
     private Animator animator;
+    private Weapon weapon;
+
+    public void MoveInput(InputAction.CallbackContext context)
+    {
+        Vector2 contextV2 = context.ReadValue<Vector2>();
+
+        inputDir = contextV2;
+    }
+
+    public void JumpInput(InputAction.CallbackContext context)
+    {
+        isJump = context.performed;
+    }
+
+    public void AttackInput(InputAction.CallbackContext context)
+    {
+        isAttacking = context.performed;
+    }
+
+    public void StartAttack()
+    {
+        if (weapon != null)
+        {
+            weapon.TurnOnAttack();
+        }
+    }
+
+    public void EndAttack()
+    {
+        if (weapon != null)
+        {
+            weapon.TurnOffAttack();
+        }
+    }
 
     private void Start()
     {
         vertSpeed = minFall;
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        weapon = GetComponentInChildren<Weapon>();
     }
 
     private void Update()
@@ -104,28 +139,11 @@ public class RelativeMovement : MonoBehaviour
         movement *= Time.deltaTime;
         characterController.Move(movement);
 
-        animator.SetBool(inputDir != Vector2.zero ? "JumpAttack" : "Attack", isAttack);
+        animator.SetBool(inputDir != Vector2.zero ? "JumpAttack" : "Attack", isAttacking);
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         contact = hit;
-    }
-
-    public void MoveInput(InputAction.CallbackContext context)
-    {
-        Vector2 contextV2 = context.ReadValue<Vector2>();
-
-        inputDir = contextV2;
-    }
-
-    public void JumpInput(InputAction.CallbackContext context)
-    {
-        isJump = context.performed;
-    }
-
-    public void AttackInput(InputAction.CallbackContext context)
-    {
-        isAttack = context.performed;
     }
 }
