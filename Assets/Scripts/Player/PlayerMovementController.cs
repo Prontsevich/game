@@ -2,107 +2,148 @@
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Animator))]
 public class PlayerMovementController : MonoBehaviour
 {
-    [SerializeField] private float movementSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 3f;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float mass = 1f;
-    [SerializeField] private float damping = 5f;
+    [SerializeField] private Transform target;
+    [SerializeField] private Transform raycastPoint;
 
-    private Transform cameraTransform;
+    public float moveSpeed = 6.0f;
+    public float rotSpeed = 15.0f;
+    public float jumpSpeed = 15.0f;
+    public float gravity = -9.8f;
+    public float terminalVelocity = -10.0f;
+    public float minFall = -1.5f;
+
+    private Vector2 inputDir;
+    private float vertSpeed;
+    private bool isJump;
+    private bool isAttacking;
+    private ControllerColliderHit contact;
 
     private CharacterController characterController;
-    private float velocityY;
-    private Vector3 currentImpact;
-    private Vector3 movementInput;
-    private Vector2 inputDir;
-    private bool isJump;
-    private Quaternion targetRot;
-
-    private float turnSmoothVelocity;
-    private float turnSmoothTime = 0.1f;
-
-    private readonly float gravity = Physics.gravity.y;
+    private Animator animator;
+    private Weapon weapon;
 
     public void MoveInput(InputAction.CallbackContext context)
     {
         Vector2 contextV2 = context.ReadValue<Vector2>();
 
-        //if (Mathf.Abs(contextV2.x) < 0.2f)
-        //{
-        //    contextV2.x = 0;
-        //}
-
-        //if (Mathf.Abs(contextV2.y) < 0.2f)
-        //{
-        //    contextV2.y = 0;
-        //}
-
-        inputDir = contextV2.normalized;
-        movementInput = new Vector3(0, 0f, contextV2.y);
+        inputDir = contextV2;
     }
 
     public void JumpInput(InputAction.CallbackContext context)
     {
-        float contextJump = context.ReadValue<float>();
-        isJump = contextJump > 0;
+        isJump = context.performed;
     }
 
-    public void AddForce(Vector3 direction, float magnitude)
+    public void AttackInput(InputAction.CallbackContext context)
     {
-        currentImpact += direction.normalized * magnitude / mass;
+        isAttacking = context.performed;
     }
 
-    private void Awake()
+    public void StartAttack()
     {
+        if (weapon != null)
+        {
+            weapon.TurnOnAttack();
+        }
+    }
+
+    public void EndAttack()
+    {
+        if (weapon != null)
+        {
+            weapon.TurnOffAttack();
+        }
+    }
+
+    private void Start()
+    {
+        vertSpeed = minFall;
         characterController = GetComponent<CharacterController>();
-        cameraTransform = Camera.main.transform;
-        targetRot = transform.rotation;
+        animator = GetComponent<Animator>();
+        weapon = GetComponentInChildren<Weapon>();
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        Move();
-        Jump();
+        Vector3 movement = Vector3.zero;
+
+        float horInput = inputDir.x;
+        float vertInput = inputDir.y;
+        if (horInput != 0 || vertInput != 0)
+        {
+            movement.x = horInput * moveSpeed;
+            movement.z = vertInput * moveSpeed;
+            movement = Vector3.ClampMagnitude(movement, moveSpeed);
+
+            Quaternion tmp = target.rotation;
+            target.eulerAngles = new Vector3(0, target.eulerAngles.y, 0);
+            movement = target.TransformDirection(movement);
+            target.rotation = tmp;
+
+            Quaternion direction = Quaternion.LookRotation(movement);
+            transform.rotation = Quaternion.Lerp(transform.rotation, direction, rotSpeed * Time.deltaTime);
+        }
+
+        animator.SetFloat("Speed", movement.sqrMagnitude);
+
+        bool hitGround = false;
+        RaycastHit hit;
+        if (vertSpeed < 0 && Physics.Raycast(raycastPoint.position, Vector3.down, out hit))
+        {
+            float check = 0.2f;
+            hitGround = hit.distance <= check;
+        }
+
+        if (hitGround)
+        {
+            if (isJump)
+            {
+                vertSpeed = jumpSpeed;
+            }
+            else
+            {
+                vertSpeed = minFall;
+                animator.SetBool("Jumping1", false);
+            }
+        }
+        else
+        {
+            vertSpeed += gravity * 5 * Time.deltaTime;
+            if (vertSpeed < terminalVelocity)
+            {
+                vertSpeed = terminalVelocity;
+            }
+
+            if (contact != null)
+            {
+                animator.SetBool("Jumping1", true);
+            }
+
+            if (characterController.isGrounded)
+            {
+                if (Vector3.Dot(movement, contact.normal) < 0)
+                {
+                    movement = contact.normal * moveSpeed;
+                }
+                else
+                {
+                    movement += contact.normal * moveSpeed;
+                }
+            }
+        }
+        movement.y = vertSpeed;
+
+        movement *= Time.deltaTime;
+        characterController.Move(movement);
+
+        animator.SetBool(inputDir != Vector2.zero ? "JumpAttack" : "Attack", isAttacking);
     }
 
-    private void Move()
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (characterController.isGrounded && velocityY < 0f)
-        {
-            velocityY = 0f;
-        }
-
-        velocityY += gravity * Time.deltaTime;
-
-
-        if (inputDir != Vector2.zero)
-        {
-            float targetRotation = Mathf.Atan2(inputDir.x, 0) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref turnSmoothVelocity, turnSmoothTime);
-        }
-
-        Vector3 velocity = movementInput.normalized * movementSpeed + Vector3.up * velocityY;
-
-        if (currentImpact.magnitude > 0.2f)
-        {
-            velocity += currentImpact;
-        }
-
-        velocity = transform.rotation * velocity;
-
-        characterController.Move(velocity * Time.deltaTime);
-
-        currentImpact = Vector3.Lerp(currentImpact, Vector3.zero, damping * Time.deltaTime);
-    }
-
-    private void Jump()
-    {
-        if (isJump && characterController.isGrounded)
-        {
-            AddForce(Vector3.up, jumpForce);
-        }
+        contact = hit;
     }
 }

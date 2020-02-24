@@ -4,29 +4,36 @@ public class EnemyController : MonoBehaviour
 {
     private Animator animator;
     private CharacterController characterController;
+    private HealthController healthController;
 
-    public int MaxHealth = 10;
-
-    private int currentHealth;
+    private void Awake()
+    {
+        healthController = GetComponent<HealthController>();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        currentHealth = MaxHealth;
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        healthController.TakeDamage(damage);
     }
 
-    public void Die()
+    private void OnEnable()
+    {
+        healthController.onDie += Die;
+    }
+
+    private void OnDisable()
+    {
+        healthController.onDie -= Die;
+    }
+
+    private void Die()
     {
         Debug.Log("Die");
         characterController.enabled = false;
