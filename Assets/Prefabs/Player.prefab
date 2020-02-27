@@ -445,8 +445,8 @@ GameObject:
   - component: {fileID: 8091040128441134721}
   - component: {fileID: 8145749187376236835}
   - component: {fileID: 8095745162789441499}
-  - component: {fileID: 8095745162789441498}
   - component: {fileID: 8095745162789441503}
+  - component: {fileID: 4070889833875393849}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -509,7 +509,27 @@ CharacterController:
   m_SkinWidth: 0.04
   m_MinMoveDistance: 0.01
   m_Center: {x: 0, y: 0.92, z: 0}
---- !u!114 &8095745162789441498
+--- !u!114 &8095745162789441503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8095916656512178723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cebd53e6c62a5b44bf2fa7345e1dbcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  raycastPoint: {fileID: 8095745164411742892}
+  moveSpeed: 6
+  rotSpeed: 15
+  jumpSpeed: 15
+  gravity: -9.8
+  terminalVelocity: -10
+  minFall: -1.5
+--- !u!114 &4070889833875393849
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -596,6 +616,36 @@ MonoBehaviour:
     m_ActionId: 96e046a3-f394-464f-b428-55ab54118d3f
     m_ActionName: Player/Jump[/Keyboard/space]
   - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_MethodName: StartSpawning
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ee5b90cf-c361-4063-ab4c-d2b975d5f94d
+    m_ActionName: Player/Activate[/Keyboard/1]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_MethodName: StopSpawning
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8c02ee23-b66e-4e9f-a4bd-c783b2d4d5fa
+    m_ActionName: Player/Deactivate[/Keyboard/2]
+  - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 34539adc-be83-47f0-a84e-0b4abe960c8d
     m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
@@ -644,26 +694,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &8095745162789441503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8095916656512178723}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cebd53e6c62a5b44bf2fa7345e1dbcf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  raycastPoint: {fileID: 8095745164411742892}
-  moveSpeed: 6
-  rotSpeed: 15
-  jumpSpeed: 15
-  gravity: -9.8
-  terminalVelocity: -10
-  minFall: -1.5
 --- !u!1 &8096382734966559277
 GameObject:
   m_ObjectHideFlags: 0
